@@ -4,19 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="../public/Css/LogIn.css">
+    <link rel="stylesheet" href="../../public/Css/SignUp.css">
+    <style>
+      *{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: Arial, 'Times New Roman', Times, serif;
+}
+
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+#FormContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: min(90%, 500px); /* responsive magic */
+    gap: 1.5rem;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+input{
+    padding: clamp(0.7rem, 20vw, 1rem);
+    width: 80%;
+    border-radius: 10px;
+    border: none;
+    background-color: #f4f4f4;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+}
+
+input::placeholder{
+    color: gray;
+}
+
+h1{
+    font-size: clamp(1.5rem, 20vw, 2.5rem);
+    text-align: center;
+    color: #111;
+}
+button{
+    padding: clamp(0.7rem, 20vw, 1rem);
+    width: 160px;
+    border-radius: 10px;
+    border: none;
+    background: #4f39f6;
+    font-size: larger;
+    font-weight: bold;
+    color: white;
+}
+a{
+    color :#4f39f6;
+}
+#SuccessMessage{
+  background-color: #E31919;
+  border-radius: 5px;
+  color: white;
+  padding: 15px;
+}
+
+    </style>
 </head>
 <body>
    <div id="FormContainer">
-       <form action="">
+
+<!-- ERROR MESSAGE -->
+<% if (error_msg && error_msg.length > 0) { %>
+  <div id="SuccessMessage">
+    <%= error_msg[0] %>
+  </div>
+<% }%>
+
+       <form method="POST" action="/user/registration">
         <h1>Log In</h1>
-        <input type="text" name="Username" placeholder="User Name" id="">
+        <input type="text" name="username" placeholder="User Name">
         
-        <input type="email" name="email" placeholder="Email" id="">
-    
-        <button type="submit">Log In</button>
-        <p>Create New Account <a href="./SignUp.ejs">Sign up</a></p>
+        <input type="email" name="email" placeholder="Email">
+        
+        <button type="submit">Log in</button>
+        <p>Create Account <a href="/page/SignUp">Sign Up</a></p>
     </form>
    </div>
+<script src="../public/JS/SignUp.js"></script>
 </body>
 </html>
