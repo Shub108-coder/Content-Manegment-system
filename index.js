@@ -24,8 +24,8 @@ app.use(express.static('public'));
 // Sessions AFTER body parsing
 app.use(session({
   secret: process.env.SESSION_KEY || "mySecretKey",
-    resave: false,
-    saveUninitialized: false,
+  saveUninitialized: false,
+  resave: false,
 }));
 
 app.use(flash());

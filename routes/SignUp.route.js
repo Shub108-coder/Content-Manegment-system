@@ -24,19 +24,19 @@ router.post("/user/registration",async (req,res) =>{
     password
   });
 
-  const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_KEY,
-      { expiresIn: "7d" }
-    );
+  // const token = jwt.sign(
+  //     { id: user._id, email: user.email },
+  //     process.env.JWT_KEY,
+  //     { expiresIn: "7d" }
+  //   );
 
-    // SET COOKIE
-    res.cookie("token", token, {
-      httpOnly: true,   // cannot be accessed by JS
-      secure: false,    // true only in HTTPS
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+  //   // SET COOKIE
+  //   res.cookie("token", token, {
+  //     httpOnly: true,   // cannot be accessed by JS
+  //     secure: false,    // true only in HTTPS
+  //     sameSite: "strict",
+  //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  //   });
 
 
  req.flash('success', 'User created successfully!');
