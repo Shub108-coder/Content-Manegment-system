@@ -23,7 +23,7 @@ app.use(express.static('public'));
 
 // Sessions AFTER body parsing
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_KEY || "mySecretKey",
     resave: false,
     saveUninitialized: false,
 }));
