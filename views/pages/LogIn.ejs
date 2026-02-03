@@ -35,7 +35,7 @@ form{
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    gap: 2.5rem;
     width: 100%;
 }
 
@@ -57,15 +57,36 @@ h1{
     text-align: center;
     color: #111;
 }
-button{
-    padding: clamp(0.7rem, 20vw, 1rem);
-    width: 160px;
-    border-radius: 10px;
-    border: none;
-    background: #4f39f6;
-    font-size: larger;
-    font-weight: bold;
-    color: white;
+button {
+ border: none;
+ color: #fff;
+ background-image: linear-gradient(30deg, #0400ff, #4ce3f7);
+ border-radius: 20px;
+ background-size: 100% auto;
+ font-family: inherit;
+ font-size: 17px;
+ padding: 1em 2.5em;
+}
+
+button:hover {
+ background-position: right center;
+ background-size: 200% auto;
+ -webkit-animation: pulse 2s infinite;
+ animation: pulse512 1.5s infinite;
+}
+
+@keyframes pulse512 {
+ 0% {
+  box-shadow: 0 0 0 0 #05bada66;
+ }
+
+ 70% {
+  box-shadow: 0 0 0 10px rgb(218 103 68 / 0%);
+ }
+
+ 100% {
+  box-shadow: 0 0 0 0 rgb(218 103 68 / 0%);
+ }
 }
 a{
     color :#4f39f6;
@@ -76,7 +97,14 @@ a{
   color: white;
   padding: 15px;
 }
-
+#InpuContainer{
+   display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
     </style>
 </head>
 <body>
@@ -89,11 +117,13 @@ a{
   </div>
 <% }%>
 
-       <form method="POST" action="/user/registration">
+       <form method="POST" action="/user/Auhentication">
         <h1>Log In</h1>
-        <input type="text" name="username" placeholder="User Name">
         
-        <input type="email" name="email" placeholder="Email">
+        <div id="InpuContainer">
+            <input type="email" name="email" placeholder="Email">
+        <input type="password" name="password" placeholder="Password">
+        </div>
         
         <button type="submit">Log in</button>
         <p>Create Account <a href="/page/SignUp">Sign Up</a></p>

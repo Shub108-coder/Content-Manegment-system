@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMS</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+:root {
+  --primary: #4f39f6;
+  --light-bg: #f9fafb;
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #9ca3af;
+}
+
+body {
+  background: var(--light-bg);
+}
+
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: #fff;
+  border-right: 1px solid var(--border);
+}
+
+.logo {
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#logo {
+  display: flex;
+  gap: 10px;
+}
+
+.logo img {
+  width: 45px;
+  height: 45px;
+}
+
+.logo h2 {
+  color: var(--primary);
+}
+
+.logo p {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* FOLDERS */
+.folders {
+  padding: 10px;
+}
+
+.folders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.folders-header h4 {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.folders-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--primary);
+  font-size: 16px;
+}
+
+.folder {
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.folder:hover {
+  background: var(--light-bg);
+}
+
+.folder.active {
+  background: #eef2ff;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+nav {
+  height: 70px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 20px;
+}
+
+nav button {
+  background: linear-gradient(135deg, #0400ff, #4ce3f7);
+  color: #fff;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* MAIN */
+main {
+  padding: 25px;
+  flex: 1;
+}
+
+.file-box {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  width: clamp(300px, 65vw, 900px);
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: left;
+}
+
+td {
+  padding: 12px 0;
+  border-top: 1px solid #eee;
+}
+
+.preview-img {
+  height: 40px;
+  width: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.action i {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.action .fa-trash {
+  color: red;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-box input {
+  width: 90%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #f4f4f4;
+}
+
+.modal-box button {
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+#createbtn {
+  background: var(--primary);
+  color: white;
+}
+
+
+/* IMAGE + VIDEO PREVIEW */
+.preview-img,
+.preview-video {
+  height: 42px;
+  width: 42px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #000;
+}
+
+/* VIDEO SPECIFIC */
+.preview-video {
+  pointer-events: none;
+}
+
+/* FILE ICON */
+.file-icon {
+  font-size: 22px;
+  color: var(--muted);
+}
+
+/* TABLE HOVER */
+tbody tr:hover {
+  background: #f9fafb;
+}
+
+td {
+  vertical-align: middle;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <div class="sidebar">
+    <div class="logo">
+      <div id="logo">
+        <img src="/assets/Logo.png">
+        <div>
+          <h2>CMS</h2>
+          <p>Content Management System</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="folders">
+      <div class="folders-header">
+        <h4>Folders</h4>
+        <button onclick="openFolderModal()"><i class="fa-solid fa-plus"></i></button>
+      </div>
+      <div id="folderList"></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <nav>
+      <button onclick="uploadFile()">Upload</button>
+    </nav>
+
+    <main id="mainContent">
+      <h2>No Folder Selected</h2>
+      <p>Select a folder to view files</p>
+    </main>
+  </div>
+</div>
+
+<input type="file" id="fileInput" hidden accept="image/*,video/*">
+
+
+<!-- MODAL -->
+<div class="modal" id="folderModal">
+  <div class="modal-box">
+    <h3>Create Folder</h3>
+    <input id="folderName" placeholder="Folder name">
+    <div>
+      <button id="createbtn" onclick="createFolder()">Create</button>
+      <button onclick="closeFolderModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let data = [];
+let currentFolder = null;
+
+const folderList = document.getElementById("folderList");
+const mainContent = document.getElementById("mainContent");
+const fileInput = document.getElementById("fileInput");
+
+function renderFolders() {
+  folderList.innerHTML = "";
+  data.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "folder" + (item.folder === currentFolder ? " active" : "");
+    div.innerHTML = `<i class="fa-regular fa-folder"></i> ${item.folder}`;
+    div.onclick = () => loadFiles(item.folder);
+    folderList.appendChild(div);
+  });
+}
+
+function loadFiles(folderName) {
+  currentFolder = folderName;
+  renderFolders();
+
+  const folder = data.find(f => f.folder === folderName);
+  let rows = "";
+
+  folder.files.forEach((file, index) => {
+    const isImage = file.type.startsWith("image");
+    const isVideo = file.type.startsWith("video");
+
+    rows += `
+      <tr>
+        <td>
+          ${
+            isImage
+              ? `<img src="${file.url}" class="preview-img">`
+              : isVideo
+                ? `<video src="${file.url}" class="preview-video" muted></video>`
+                : `<i class="fa-regular fa-file file-icon"></i>`
+          }
+        </td>
+        <td>${file.size}</td>
+        <td>${file.date}</td>
+        <td class="action">
+          <i class="fa-solid fa-download" onclick="downloadFile('${file.url}','${file.name}')"></i>
+          <i class="fa-solid fa-trash" onclick="deleteFile(${index})"></i>
+        </td>
+      </tr>
+    `;
+  });
+
+  mainContent.innerHTML = `
+    <h2>${folder.folder}</h2>
+    <p>${folder.files.length} files</p>
+    <div class="file-box">
+      <table>
+        <thead>
+          <tr>
+            <th>Preview</th>
+            <th>Size</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+
+function uploadFile() {
+  if (!currentFolder) {
+    alert("Create a Folder Frist");
+    return;
+  }
+  fileInput.click();
+}
+
+fileInput.onchange = () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const previewUrl = URL.createObjectURL(file);
+  const folder = data.find(f => f.folder === currentFolder);
+
+  folder.files.push({
+    url: previewUrl,      // cloudinary URL later
+    name: file.name,
+    size: Math.round(file.size / 1024) + " KB",
+    date: new Date().toDateString(),
+    type: file.type
+  });
+
+  loadFiles(currentFolder);
+  fileInput.value = "";
+};
+
+function deleteFile(index) {
+  const folder = data.find(f => f.folder === currentFolder);
+  folder.files.splice(index, 1);
+
+  if (folder.files.length === 0) {
+    data = data.filter(f => f.folder !== currentFolder);
+    currentFolder = null;
+    mainContent.innerHTML = "<h2>No Folder Selected</h2>";
+  }
+
+  renderFolders();
+  if (currentFolder) loadFiles(currentFolder);
+}
+
+function downloadFile(url, name) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+}
+
+function openFolderModal() {
+  document.getElementById("folderModal").style.display = "flex";
+}
+
+function closeFolderModal() {
+  document.getElementById("folderModal").style.display = "none";
+}
+
+function createFolder() {
+  const name = document.getElementById("folderName").value.trim();
+  if (!name) return;
+
+  data.push({ folder: name, files: [] });
+  closeFolderModal();
+  renderFolders();
+}
+</script>
+
+</body>
+</html>

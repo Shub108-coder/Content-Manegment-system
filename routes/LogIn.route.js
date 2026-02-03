@@ -2,36 +2,57 @@ const express = require("express");
 const router = express.Router();
 const usermodel = require("../models/Users.models.js");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
-// Add this above your router.post
+// Login page
 router.get("/page/LogIn", (req, res) => {
   res.render("pages/LogIn");
 });
 
+// Login authentication
 router.post("/user/Auhentication", async (req, res) => {
-  const { username, email, password } = req.body;
+  try {
+    let { email, password } = req.body;
 
-  const UserAlreadyExsist = await usermodel.findOne({ email });
+    // find user by email
+    const user = await usermodel.findOne({ email });
 
-  if (UserAlreadyExsist) {
+    if (!user) {
+      req.flash("error", "Email is not registred please sign up");
+      return res.redirect("/page/LogIn");
+    }
+
+    //  compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      req.flash("error", "Wrong password");
+      return res.redirect("/page/LogIn");
+    }
+
+    //  generate token
     const token = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_KEY,
-      { expiresIn: "7d" },
+      { expiresIn: "7d" }
     );
 
-    // SET COOKIE
+    // 4️⃣ set cookie
     res.cookie("Auth", token, {
-      httpOnly: true, // cannot be accessed by JS
-      secure: false, // true only in HTTPS
+      httpOnly: true,
+      secure: false, // true in production with HTTPS
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
     req.flash("success", "Log in successfully!");
-    res.redirect("/page/Home");
+    return res.redirect("/page/Home");
+
+  } catch (error) {
+    console.error(error);
+    req.flash("error", "Something went wrong. Please try again.");
+    return res.redirect("/page/LogIn");
   }
-  req.flash("error", "This email is not registred Please Sign up");
-  return res.redirect("/page/SignUp");
 });
 
 module.exports = router;

@@ -9,6 +9,7 @@ const cookieParser = require("cookie-parser");
 
 const SignUpRoute = require("./routes/SignUp.route.js");
 const LogInRoute = require("./routes/LogIn.route.js");
+const HomeRoute = require("./routes/Home.route.js");
 
 dotenv.config();
 
@@ -55,5 +56,6 @@ app.use(express.static("public"));
 // Routes
 app.use("/", SignUpRoute);
 app.use("/", LogInRoute);
+app.use("/", HomeRoute);
 
 module.exports = app;
