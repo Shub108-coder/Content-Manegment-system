@@ -280,7 +280,16 @@ td {
 
   <div class="content">
     <nav>
-      <button onclick="uploadFile()">Upload</button>
+      <form action="/home/upload" method="POST" enctype="multipart/form-data">
+  <select name="folderId">
+    <% folders.forEach(folder => { %>
+      <option value="<%= folder._id %>"><%= folder.name %></option>
+    <% }) %>
+  </select>
+
+  <input type="file" name="file" />
+  <button onclick="uploadFile()">Upload</button>
+</form>
     </nav>
 
     <main id="mainContent">
@@ -295,14 +304,14 @@ td {
 
 <!-- MODAL -->
 <div class="modal" id="folderModal">
-  <div class="modal-box">
-    <h3>Create Folder</h3>
-    <input id="folderName" placeholder="Folder name">
+    <form class="modal-box" action="/home/create-folder" method="POST">
+  <h3>Create Folder</h3>
+    <input id="folderName" name="folderName" placeholder="Folder name">
     <div>
       <button id="createbtn" onclick="createFolder()">Create</button>
       <button onclick="closeFolderModal()">Cancel</button>
     </div>
-  </div>
+  </form> 
 </div>
 
 <script>
