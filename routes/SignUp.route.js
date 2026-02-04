@@ -35,10 +35,10 @@ router.post("/user/registration", async (req, res) => {
     );
 
     // SET COOKIE
-    res.cookie("Auth", token, {
+    res.cookie("auth", token, {
       httpOnly: true, // cannot be accessed by JS
       secure: false, // true only in HTTPS
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 

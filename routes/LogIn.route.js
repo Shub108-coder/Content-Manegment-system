@@ -38,10 +38,10 @@ router.post("/user/Auhentication", async (req, res) => {
     );
 
     // 4️⃣ set cookie
-    res.cookie("Auth", token, {
+    res.cookie("auth", token, {
       httpOnly: true,
       secure: false, // true in production with HTTPS
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

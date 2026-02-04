@@ -6,7 +6,6 @@
     <title>CMS Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <style>
-        /* Your existing styles are preserved */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         :root { --primary: #4f39f6; --light-bg: #f9fafb; --border: #e5e7eb; --text: #111827; --muted: #9ca3af; }
         body { background: var(--light-bg); }
@@ -22,9 +21,18 @@
         .folder { padding: 10px; display: flex; gap: 10px; cursor: pointer; border-radius: 6px; font-size: 14px; }
         .folder:hover { background: var(--light-bg); }
         .folder.active { background: #eef2ff; color: var(--primary); font-weight: bold; }
+
         .content { flex: 1; display: flex; flex-direction: column; }
         nav { height: 70px; background: #fff; border-bottom: 1px solid var(--border); display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; }
-        nav button { background: var(--primary); color: #fff; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; }
+
+        nav label {
+            background: var(--primary);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
         main { padding: 25px; flex: 1; overflow-y: auto; }
         .file-box { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid var(--border); margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; }
@@ -32,123 +40,281 @@
         td { padding: 12px 0; border-top: 1px solid #eee; font-size: 14px; }
         .preview-img, .preview-video { height: 42px; width: 42px; object-fit: cover; border-radius: 6px; background: #000; }
         .action i { margin-right: 15px; cursor: pointer; }
+
+        /* ===== UPLOAD MODAL (PURE CSS) ===== */
+        #uploadToggle { display: none; }
+
+        .upload-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #uploadToggle:checked ~ .upload-modal {
+            display: flex;
+        }
+
+        .upload-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .upload-box input[type="file"] {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .upload-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .upload-actions button,
+        .upload-actions label {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .upload-actions button {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .upload-actions label {
+            background: #eee;
+        }
+
+        /* folder modal */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; justify-content: center; align-items: center; z-index: 99; }
         .modal-box { background: #fff; padding: 20px; border-radius: 10px; width: 320px; display: flex; flex-direction: column; gap: 15px; }
         .modal-box input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #f4f4f4; }
-        .modal-btns { display: flex; justify-content: flex-end; gap: 10px; }
-        #createbtn { background: var(--primary); color: white; padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; }
+        .modal-btns { display: flex; justify-content: center; gap: 10px; }
+        .modal-btns button{ padding: 8px 15px; border-radius: 10px; border: none; }
+        #createbtn { background: var(--primary); color: white; }
+
+        /* From Uiverse.io by csemszepp */ 
+.custum-file-upload {
+  height: 200px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: space-between;
+  gap: 20px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #212121;
+  background-color: #e8e8e8;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0px 48px 35px -48px #e8e8e8;
+}
+
+.custum-file-upload .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custum-file-upload .icon svg {
+  height: 80px;
+  fill: #b8b8b8;
+}
+
+.custum-file-upload .text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custum-file-upload .text span {
+  font-weight: 400;
+  color: #b8b8b8;
+}
+
+.custum-file-upload input {
+  display: none;
+}
+/* ===== GLOBAL LOADER ===== */
+#globalLoader {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.85);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#globalLoader p {
+    margin-top: 15px;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #ddd;
+    border-top: 5px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
     </style>
 </head>
+
 <body>
-    <div class="layout">
-        <div class="sidebar">
-            <div class="logo">
-                <div id="logo">
-                    <img src="/assets/Logo.png" width="40">
-                    <div>
-                        <h2>CMS</h2>
-                        <p>Management System</p>
-                    </div>
-                </div>
-            </div>
-            <div class="folders">
-                <div class="folders-header">
-                    <h4>Folders</h4>
-                    <button onclick="openFolderModal()"><i class="fa-solid fa-plus"></i></button>
-                </div>
-                <div id="folderList">
-                    <% folders.forEach(folder => { %>
-                        <div class="folder" id="f-<%= folder._id %>" onclick="loadFiles('<%= folder._id %>', '<%= folder.name %>')">
-                            <i class="fa-regular fa-folder"></i> <%= folder.name %>
-                        </div>
-                    <% }) %>
+    <!-- GLOBAL LOADER -->
+<div id="globalLoader">
+    <div class="spinner"></div>
+    <p>Processing...</p>
+</div>
+
+<input type="checkbox" id="uploadToggle">
+
+<div class="layout">
+    <div class="sidebar">
+        <div class="logo">
+            <div id="logo">
+                <img src="/assets/Logo.png" width="40">
+                <div>
+                    <h2>CMS</h2>
+                    <p>Management System</p>
                 </div>
             </div>
         </div>
 
-        <div class="content">
-            <nav>
-                <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm" style="display:none; align-items: center; gap: 10px;">
-                    <input type="hidden" name="folderId" id="selectedFolderId">
-                    <input type="file" name="file" required>
-                    <button type="submit">Upload</button>
+        <div class="folders">
+            <div class="folders-header">
+                <h4>Folders</h4>
+                <button onclick="openFolderModal()"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <div id="folderList">
+                <% folders.forEach(folder => { %>
+                <div class="folder" id="f-<%= folder._id %>" onclick="loadFiles('<%= folder._id %>', '<%= folder.name %>')">
+                    <i class="fa-regular fa-folder"></i> <%= folder.name %>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <nav>
+            <label for="uploadToggle">Upload</label>
+        </nav>
+
+        <main id="mainContent">
+            <h2>No Folder Selected</h2>
+            <p>Please select a folder to see your files.</p>
+        </main>
+    </div>
+</div>
+
+<!-- UPLOAD POPUP -->
+<div class="upload-modal">
+<form class="upload-box" action="/upload" method="POST" enctype="multipart/form-data">
+
+    <input type="hidden" name="folderId" id="selectedFolderId">
+
+    <label for="file" class="custum-file-upload">
+        
+        <h1><i class="fa-regular fa-file"></i></h1>
+        <p>Click To Upload Image</p>
+        <input id="file" name="file" type="file" required>
+    </label>
+
+    <div class="upload-actions">
+        <label for="uploadToggle">Cancel</label>
+        <button type="submit">Upload</button>
+    </div>
+</form>
+</div>
+
+<!-- CREATE FOLDER MODAL -->
+<div class="modal" id="folderModal">
+    <form class="modal-box" action="/create-folder" method="POST">
+        <h3>New Folder</h3>
+        <input name="folderName" placeholder="Folder name" required autofocus>
+        <div class="modal-btns">
+            <button type="button" onclick="closeFolderModal()">Cancel</button>
+            <button type="submit" id="createbtn">Create</button>
+        </div>
+    </form>
+</div>
+
+<script>
+const folders = <%- JSON.stringify(folders) %>;
+
+function loadFiles(id, name) {
+    document.querySelectorAll('.folder').forEach(f => f.classList.remove('active'));
+    document.getElementById('f-' + id).classList.add('active');
+    document.getElementById('selectedFolderId').value = id;
+
+    const folder = folders.find(f => f._id === id);
+    const files = folder.files || [];
+
+    let rows = "";
+    files.forEach(file => {
+        const isVideo = file.type === "video";
+        rows += `
+        <tr>
+            <td>${isVideo ? `<video src="${file.url}" class="preview-video"></video>` : `<img src="${file.url}" class="preview-img">`}</td>
+            <td>${file.originalName}</td>
+            <td>${file.size}</td>
+            <td class="action">
+                <a href="${file.url}" target="_blank"><i class="fa-solid fa-download"></i></a>
+                <form action="/delete/${file._id}" method="POST" style="display:inline;">
+                    <button style="background:none;border:none;color:red;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </form>
-            </nav>
-            <main id="mainContent">
-                <h2>No Folder Selected</h2>
-                <p>Please select a folder to see your files.</p>
-            </main>
-        </div>
-    </div>
+            </td>
+        </tr>`;
+    });
 
-    <div class="modal" id="folderModal">
-        <form class="modal-box" action="/create-folder" method="POST">
-            <h3>New Folder</h3>
-            <input name="folderName" placeholder="Folder name" required autofocus>
-            <div class="modal-btns">
-                <button type="button" onclick="closeFolderModal()">Cancel</button>
-                <button type="submit" id="createbtn">Create</button>
-            </div>
-        </form>
-    </div>
+    document.getElementById("mainContent").innerHTML = `
+        <h2>${name}</h2>
+        <p>${files.length} files total</p>
+        <div class="file-box">
+            <table>
+                <thead>
+                    <tr><th>Preview</th><th>Name</th><th>Size</th><th>Action</th></tr>
+                </thead>
+                <tbody>${rows || '<tr><td colspan="4">No files</td></tr>'}</tbody>
+            </table>
+        </div>`;
+}
+document.querySelectorAll("form").forEach(form => {
+    form.addEventListener("submit", () => {
+        document.getElementById("globalLoader").style.display = "flex";
+    });
+});
 
-    <script>
-        // Use the actual database data
-        const folders = <%- JSON.stringify(folders) %>;
+function openFolderModal() { document.getElementById("folderModal").style.display = "flex"; }
+function closeFolderModal() { document.getElementById("folderModal").style.display = "none"; }
+</script>
 
-        function loadFiles(id, name) {
-            // Update Active State
-            document.querySelectorAll('.folder').forEach(f => f.classList.remove('active'));
-            document.getElementById('f-' + id).classList.add('active');
-
-            // Setup Upload Form
-            document.getElementById('selectedFolderId').value = id;
-            document.getElementById('uploadForm').style.display = 'flex';
-
-            const folder = folders.find(f => f._id === id);
-            const files = folder.files || [];
-
-            let rows = "";
-            files.forEach(file => {
-                const isVideo = file.type === "video";
-                rows += `
-                    <tr>
-                        <td>
-                            ${isVideo ? `<video src="${file.url}" class="preview-video"></video>` : `<img src="${file.url}" class="preview-img">`}
-                        </td>
-                        <td>${file.originalName}</td>
-                        <td>${file.size}</td>
-                        <td class="action">
-                            <a href="${file.url}" target="_blank" style="color:inherit;"><i class="fa-solid fa-download"></i></a>
-                            <form action="/delete/${file._id}" method="POST" style="display:inline;">
-                                <button type="submit" style="background:none; border:none; cursor:pointer; color:red;">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>`;
-            });
-
-            document.getElementById("mainContent").innerHTML = `
-                <h2>${name}</h2>
-                <p>${files.length} files total</p>
-                <div class="file-box">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Preview</th>
-                                <th>Name</th>
-                                <th>Size</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows || '<tr><td colspan="4">No files found</td></tr>'}</tbody>
-                    </table>
-                </div>`;
-        }
-
-        function openFolderModal() { document.getElementById("folderModal").style.display = "flex"; }
-        function closeFolderModal() { document.getElementById("folderModal").style.display = "none"; }
-    </script>
 </body>
 </html>

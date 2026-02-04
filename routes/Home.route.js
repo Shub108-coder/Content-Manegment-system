@@ -4,9 +4,10 @@ const upload = require("../middlewares/upload");
 const cloudinary = require("../config/cloudinary");
 const Folder = require("../models/Folder.model");
 const File = require("../models/FIle.model");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 /* =========================== HOME PAGE =========================== */
-router.get("/", async (req, res) => {
+router.get("/",authMiddleware,async (req, res) => {
     try {
         // Fetch folders and populate files so they show up in the table
         const folders = await Folder.find().populate("files");
@@ -75,22 +76,37 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 
 /* =========================== DELETE FILE =========================== */
 router.post("/delete/:id", async (req, res) => {
-    try {
-        const file = await File.findById(req.params.id);
-        if (!file) return res.redirect("/");
+  try {
+    const file = await File.findById(req.params.id);
+    if (!file) return res.redirect("/");
 
-        // Remove from Cloudinary first
-        await cloudinary.uploader.destroy(file.publicId, { resource_type: file.type });
+    // 1️⃣ Delete from Cloudinary
+    await cloudinary.uploader.destroy(file.publicId, {
+      resource_type: file.type,
+    });
 
-        // Clean up database references
-        await Folder.updateMany({ files: file._id }, { $pull: { files: file._id } });
-        await file.deleteOne();
+    // 2️⃣ Remove file reference from folders
+    const folders = await Folder.find({ files: file._id });
 
-        res.redirect("/");
-    } catch (error) {
-        console.error("Delete Error:", error);
-        res.status(500).send("Delete failed");
+    for (let folder of folders) {
+      folder.files.pull(file._id);
+      await folder.save();
+
+      // 🔥 3️⃣ If folder is empty → delete it
+      if (folder.files.length === 0) {
+        await Folder.findByIdAndDelete(folder._id);
+      }
     }
+
+    // 4️⃣ Delete file document
+    await file.deleteOne();
+
+    res.redirect("/");
+  } catch (error) {
+    console.error("Delete Error:", error);
+    res.status(500).send("Delete failed");
+  }
 });
+
 
 module.exports = router;
