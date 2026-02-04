@@ -43,9 +43,9 @@ router.post("/user/registration", async (req, res) => {
     });
 
     req.flash("success", "User created successfully!");
-    res.redirect("/page/Home");
+    res.redirect("/");
   } catch (err) {
-    req.flash("error", "Registration failed: " + err.message);
+    req.flash("error", "Registration failed");
     res.redirect("/page/SignUp");
   }
 });

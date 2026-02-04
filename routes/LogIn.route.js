@@ -46,7 +46,7 @@ router.post("/user/Auhentication", async (req, res) => {
     });
 
     req.flash("success", "Log in successfully!");
-    return res.redirect("/page/Home");
+    return res.redirect("/");
 
   } catch (error) {
     console.error(error);
