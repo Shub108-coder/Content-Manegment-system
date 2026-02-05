@@ -4,11 +4,13 @@ const fileSchema = new mongoose.Schema({
   originalName: String,
   url: String,
   publicId: String,
-  type: String, 
+  type: String,
   size: String,
-  createdAt: {
-    type: Date,
-    default: Date.now,
+
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
 });
 

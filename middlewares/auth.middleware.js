@@ -1,20 +1,30 @@
-const User = require("../models/Users.models");
 const jwt = require("jsonwebtoken");
+const User = require("../models/Users.models");
 
 const authMiddleware = async (req, res, next) => {
+  const token = req.cookies.auth;
+
+  if (!token) {
+    return res.redirect("/page/SignUp");
+  }
+
   try {
-    const token = req.cookies.auth;
-    if (!token) return res.redirect("/page/SignUp");
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_KEY);
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded.userId) return res.redirect("/page/SignUp");
+    // Fetch FULL user from DB (THIS IS THE KEY FIX)
+    const user = await User.findById(decoded.id).select("-password");
 
-    const user = await User.findById(decoded.userId);
-    if (!user) return res.redirect("/page/SignUp");
+    if (!user) {
+      res.clearCookie("auth");
+      return res.redirect("/page/SignUp");
+    }
 
     req.user = user;
+
     next();
-  } catch (err) {
+  } catch (error) {
+    res.clearCookie("auth");
     return res.redirect("/page/SignUp");
   }
 };

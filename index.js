@@ -10,6 +10,7 @@ const cookieParser = require("cookie-parser");
 const SignUpRoute = require("./routes/SignUp.route.js");
 const LogInRoute = require("./routes/LogIn.route.js");
 const HomeRoute = require("./routes/Home.route.js");
+const UserDashBoard = require("./routes/UserDashBoard.route.js");
 
 dotenv.config();
 
@@ -17,27 +18,25 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use(cookieParser());
-// ✅ CORRECT ORDER:
-app.use(express.urlencoded({ extended: true })); // FIRST
-app.use(express.json()); // SECOND
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.use(express.static("public"));
 
-// Sessions AFTER body parsing
+
 app.use(
   session({
     secret: process.env.SESSION_KEY || "mySecretKey",
     resave: false,
-    saveUninitialized: false, // Only create cookie if session is modified
+    saveUninitialized: false,
     cookie: { maxAge: 60000 * 60 },
   }),
 );
 
 app.use(flash());
 
-// Flash locals LAST
 app.use((req, res, next) => {
-    // Only access flash if a session has already been started by something else
+  
     if (req.session) {
         res.locals.success_msg = req.flash("success");
         res.locals.error_msg = req.flash("error");
@@ -50,12 +49,13 @@ app.use((req, res, next) => {
     next();
 });
 
-// Static files (add this)
+// Static files
 app.use(express.static("public"));
 
 // Routes
 app.use("/", SignUpRoute);
 app.use("/", LogInRoute);
 app.use("/", HomeRoute);
+app.use("/", UserDashBoard);
 
 module.exports = app;

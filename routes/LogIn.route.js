@@ -37,10 +37,10 @@ router.post("/user/Auhentication", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    // 4️⃣ set cookie
+    // set cookie
     res.cookie("auth", token, {
       httpOnly: true,
-      secure: false, // true in production with HTTPS
+      
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });

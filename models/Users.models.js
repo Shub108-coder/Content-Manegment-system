@@ -1,31 +1,22 @@
 const mongoose = require("mongoose");
 
-const userSchema = mongoose.Schema(
-  {
-    username: {
-      type: String,
-      required: true,
+const userSchema = new mongoose.Schema({
+  email: String,
+  password: String,
+  username: String,
+  folders: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Folder",
     },
-    email: {
-      type: String,
-      unique: true,
-      required: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
+  ],
 
-    foldersCount: {
-      type: Number,
-      default: 0,
+  files: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "File",
     },
-    filesCount: {
-      type: Number,
-      default: 0,
-    },
-  },
-  { timestamps: true },
-);
+  ],
+});
 
 module.exports = mongoose.model("User", userSchema);

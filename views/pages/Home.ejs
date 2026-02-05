@@ -17,7 +17,7 @@
         .folders { padding: 20px 10px; }
         .folders-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 10px; }
         .folders-header h4 { font-size: 12px; color: var(--muted); text-transform: uppercase; }
-        .folders-header button { background: none; border: none; cursor: pointer; color: var(--primary); font-size: 16px; }
+        .folders-header button { background: none; border: none; cursor: pointer; color: rgb(255, 183, 0); font-size: 16px; }
         .folder { padding: 10px; display: flex; gap: 10px; cursor: pointer; border-radius: 6px; font-size: 14px; }
         .folder:hover { background: var(--light-bg); }
         .folder.active { background: #eef2ff; color: var(--primary); font-weight: bold; }
@@ -41,7 +41,7 @@
         .preview-img, .preview-video { height: 42px; width: 42px; object-fit: cover; border-radius: 6px; background: #000; }
         .action i { margin-right: 15px; cursor: pointer; }
 
-        /* ===== UPLOAD MODAL (PURE CSS) ===== */
+    
         #uploadToggle { display: none; }
 
         .upload-modal {
@@ -197,7 +197,6 @@
     <div class="sidebar">
         <div class="logo">
             <div id="logo">
-                <img src="/assets/Logo.png" width="40">
                 <div>
                     <h2>CMS</h2>
                     <p>Management System</p>
@@ -209,6 +208,7 @@
             <div class="folders-header">
                 <h4>Folders</h4>
                 <button onclick="openFolderModal()"><i class="fa-solid fa-plus"></i></button>
+                
             </div>
             <div id="folderList">
                 <% folders.forEach(folder => { %>
@@ -260,6 +260,7 @@
         <div class="modal-btns">
             <button type="button" onclick="closeFolderModal()">Cancel</button>
             <button type="submit" id="createbtn">Create</button>
+            
         </div>
     </form>
 </div>

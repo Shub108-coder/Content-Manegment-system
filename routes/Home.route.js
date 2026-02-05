@@ -2,103 +2,151 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../middlewares/upload");
 const cloudinary = require("../config/cloudinary");
+
 const Folder = require("../models/Folder.model");
 const File = require("../models/FIle.model");
+const User = require("../models/Users.models");
+
 const authMiddleware = require("../middlewares/auth.middleware");
 
 /* =========================== HOME PAGE =========================== */
-router.get("/",authMiddleware,async (req, res) => {
-    try {
-        // Fetch folders and populate files so they show up in the table
-        const folders = await Folder.find().populate("files");
-        res.render("pages/Home", { folders });
-    } catch (error) {
-        console.error("Home Route Error:", error);
-        res.status(500).send("Error loading dashboard");
-    }
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const folders = await Folder
+      .find({ owner: req.user._id })
+      .populate("files");
+
+    res.render("pages/Home", { folders });
+  } catch (error) {
+    console.error("Home Route Error:", error);
+    res.status(500).send("Error loading dashboard");
+  }
 });
 
 /* =========================== CREATE FOLDER =========================== */
-router.post("/create-folder", async (req, res) => {
-    try {
-        const { folderName } = req.body;
-        if (!folderName) return res.redirect("/");
-        
-        await Folder.create({ name: folderName });
-        res.redirect("/"); // Redirect to the main page
-    } catch (error) {
-        console.error("Create Folder Error:", error);
-        res.status(500).send("Could not create folder");
-    }
+router.post("/create-folder", authMiddleware, async (req, res) => {
+  try {
+    const { folderName } = req.body;
+    if (!folderName) return res.redirect("/");
+
+    // Create folder
+    const folder = await Folder.create({
+      name: folderName,
+      owner: req.user._id,
+    });
+
+    // Update user (reference + counter)
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: { folders: folder._id },
+      $inc: { foldersCount: 1 },
+    });
+
+    res.redirect("/");
+  } catch (error) {
+    res.status(500).send("Could not create folder");
+  }
 });
 
 /* =========================== UPLOAD FILE =========================== */
-router.post("/upload", upload.single("file"), async (req, res) => {
+router.post(
+  "/upload",
+  authMiddleware,
+  upload.single("file"),
+  async (req, res) => {
     try {
-        const { folderId } = req.body;
-        const file = req.file;
-        if (!file || !folderId) return res.redirect("/");
+      const { folderId } = req.body;
+      const file = req.file;
 
-        const isVideo = file.mimetype.startsWith("video");
-        
-        // Cloudinary upload logic
-        const uploadResult = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                { resource_type: "auto", folder: "CMS" },
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                }
-            );
-            stream.end(file.buffer);
-        });
+      if (!file || !folderId) return res.redirect("/");
 
-        // Save file record
-        const savedFile = await File.create({
-            originalName: file.originalname,
-            url: uploadResult.secure_url,
-            publicId: uploadResult.public_id,
-            type: isVideo ? "video" : "image",
-            size: Math.round(file.size / 1024) + " KB",
-        });
+      const isVideo = file.mimetype.startsWith("video");
 
-        // Add file reference to the folder
-        await Folder.findByIdAndUpdate(folderId, {
-            $push: { files: savedFile._id }
-        });
+      // Upload to Cloudinary
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { resource_type: "auto", folder: "CMS" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(file.buffer);
+      });
 
-        res.redirect("/");
+      // Create file document
+      const savedFile = await File.create({
+        originalName: file.originalname,
+        url: uploadResult.secure_url,
+        publicId: uploadResult.public_id,
+        type: isVideo ? "video" : "image",
+        size: Math.round(file.size / 1024) + " KB",
+        owner: req.user._id,
+      });
+
+      // Push file into folder
+      await Folder.findOneAndUpdate(
+        { _id: folderId, owner: req.user._id },
+        { $push: { files: savedFile._id } }
+      );
+
+      // Update user 
+      await User.findByIdAndUpdate(req.user._id, {
+        $push: { files: savedFile._id },
+        $inc: { filesCount: 1 },
+      });
+
+      res.redirect("/");
     } catch (error) {
-        console.error("Upload Error:", error);
-        res.status(500).send("Upload failed");
+      console.error("Upload Error:", error);
+      res.status(500).send("Upload failed");
     }
-});
+  }
+);
 
 /* =========================== DELETE FILE =========================== */
-router.post("/delete/:id", async (req, res) => {
+router.post("/delete/:id", authMiddleware, async (req, res) => {
   try {
-    const file = await File.findById(req.params.id);
+    // Find file owned by user
+    const file = await File.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
+
     if (!file) return res.redirect("/");
 
-    // 1️⃣ Delete from Cloudinary
+    // Delete from Cloudinary
     await cloudinary.uploader.destroy(file.publicId, {
       resource_type: file.type,
     });
 
-    // 2️⃣ Remove file reference from folders
-    const folders = await Folder.find({ files: file._id });
+    // Remove file from folders
+    const folders = await Folder.find({
+      files: file._id,
+      owner: req.user._id,
+    });
 
-    for (let folder of folders) {
+    for (const folder of folders) {
       folder.files.pull(file._id);
       await folder.save();
 
-      // 🔥 3️⃣ If folder is empty → delete it
+      // If folder empty > delete folder + update user count
       if (folder.files.length === 0) {
         await Folder.findByIdAndDelete(folder._id);
+
+        await User.findByIdAndUpdate(req.user._id, {
+          $pull: { folders: folder._id },
+          $inc: { foldersCount: -1 },
+        });
       }
     }
 
-    // 4️⃣ Delete file document
+    // Update user 
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { files: file._id },
+      $inc: { filesCount: -1 },
+    });
+
+    // Delete file document
     await file.deleteOne();
 
     res.redirect("/");
@@ -107,6 +155,5 @@ router.post("/delete/:id", async (req, res) => {
     res.status(500).send("Delete failed");
   }
 });
-
 
 module.exports = router;

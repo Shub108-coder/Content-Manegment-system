@@ -4,7 +4,6 @@ const usermodel = require("../models/Users.models.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-// Add this above your router.post
 router.get("/page/SignUp", (req, res) => {
   res.render("pages/SignUp");
 });
@@ -36,10 +35,10 @@ router.post("/user/registration", async (req, res) => {
 
     // SET COOKIE
     res.cookie("auth", token, {
-      httpOnly: true, // cannot be accessed by JS
-      secure: false, // true only in HTTPS
+      httpOnly: true, 
+
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     req.flash("success", "User created successfully!");
