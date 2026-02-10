@@ -4,7 +4,7 @@ A simple and responsive Content Management System built using Node.js, Express, 
 
 This project allows users to create folders, upload files, preview them, download them, and delete them — all inside a clean dashboard UI.
 
-<h1>Feature</h1>
+<h2>Feature</h2>
 
 🔐 User Authentication (JWT + Cookies)
 
@@ -18,13 +18,11 @@ This project allows users to create folders, upload files, preview them, downloa
 
 🗑 Delete files
 
-📱 Fully responsive sidebar (mobile friendly)
+📱 Fully responsive
 
-⏳ Global loading spinner during form submissions
+<h2>Stack</h2>
 
-🛠 Tech Stack
-
-<h1>Backend Stack</h1>
+<h3>Backend</h3>
 
 Node.js
 
@@ -36,7 +34,7 @@ JWT (Authentication)
 
 Cloudinary (File Storage)
 
-<h1>Frontend Stack</h1>
+<h3>Frontend Stack</h3>
 
 EJS
 
