@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 function ConnectDb(){
     try{
-    mongoose.connect('mongodb://localhost:27017/CMSDB')
+    mongoose.connect(process.env.MONGO_URI)
 .then(() => {
     console.log("Database is Connected")
 })
