@@ -12,7 +12,6 @@ const authMiddleware = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_KEY);
 
-    // Fetch FULL user from DB (THIS IS THE KEY FIX)
     const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
