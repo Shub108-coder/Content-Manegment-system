@@ -2,7 +2,7 @@
   "name": "cms",
   "version": "1.0.0",
   "engines": {
-  "node": "18.x"
+  "node": "24.x"
 },
   "description": "This Web App maneges contect",
   "main": "index.js",
